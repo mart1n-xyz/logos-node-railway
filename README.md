@@ -15,8 +15,39 @@ This template runs a single **Logos Blockchain** full node on Railway. It:
 - Downloads the official `logos-blockchain-node` binary and ZK circuit files from GitHub Releases at image build time.
 - Runs `logos-blockchain-node init` on first boot to generate fresh keys and a `user_config.yaml`.
 - Stores config and all chain state on a Railway persistent volume (`/data`) so data survives redeploys.
-- Exposes the HTTP API on port 8080 and p2p (UDP/QUIC) on port 3000.
-- Uses the Railway health check (`GET /cryptarchia/info`) to confirm the node is running.
+- Exposes a **web dashboard** on the Railway public URL (port 3001) with live node status, peer info, wallet keys, and scrolling logs.
+- Runs the node HTTP API on port 8080 internally (not publicly exposed).
+- Uses p2p (UDP/QUIC) on port 3000.
+
+---
+
+## Web Dashboard
+
+Once deployed, open your Railway public URL in a browser to see the dashboard:
+
+- **Node Status** — mode, current slot, block height, and chain tip hash (from `/cryptarchia/info`)
+- **Network / Peers** — connected peer count and connection count (from `/network/info`)
+- **Wallet Keys** — public keys from `user_config.yaml`
+- **Node Logs** — last 500 lines, auto-scrolling, color-coded for errors and warnings
+- **Auto-refresh** every 10 seconds
+
+### Dashboard API endpoints
+
+| Endpoint | Description |
+|---|---|
+| `GET /` | HTML dashboard |
+| `GET /api/status` | JSON combining cryptarchia/info + network/info |
+| `GET /api/logs` | Last 500 log lines as JSON |
+| `GET /api/keys` | Node public keys from config |
+
+### Password protection
+
+Set the `DASHBOARD_PASSWORD` environment variable to enable HTTP basic auth:
+
+- Username: `admin`
+- Password: whatever you set in `DASHBOARD_PASSWORD`
+
+If `DASHBOARD_PASSWORD` is empty (the default), the dashboard is publicly accessible.
 
 ---
 
@@ -24,9 +55,11 @@ This template runs a single **Logos Blockchain** full node on Railway. It:
 
 | Variable | Default | Description |
 |---|---|---|
-| `API_PORT` | `8080` | Port for the node's HTTP API |
-| `P2P_PORT` | `3000` | UDP port for libp2p/QUIC p2p networking |
+| `PORT` | `3001` | Web dashboard port (Railway routes public traffic here) |
+| `NODE_API_PORT` | `8080` | Internal node HTTP API port |
+| `API_PORT` | `8080` | Same as `NODE_API_PORT` — used by the node binary |
 | `DATA_DIR` | `/data` | Persistent volume mount path |
+| `DASHBOARD_PASSWORD` | *(empty)* | If set, enables basic auth on the dashboard |
 | `BOOTSTRAP_PEERS` | *(v0.2.1 peers — see below)* | Space-separated multiaddrs to join the network |
 
 ### Default bootstrap peers (v0.2.1)
@@ -40,25 +73,9 @@ This template runs a single **Logos Blockchain** full node on Railway. It:
 
 ---
 
-## Checking node status
-
-Once deployed, use the Railway public domain (or your custom domain) to query the HTTP API:
-
-```bash
-# Node info / sync status
-curl https://<your-railway-domain>/cryptarchia/info
-
-# Peer count
-curl https://<your-railway-domain>/network/info
-```
-
-You can also check the node logs directly in the Railway dashboard under **Deployments → Logs**.
-
----
-
 ## Getting devnet tokens
 
-Visit the Logos faucet (link in the [official docs](https://github.com/logos-blockchain/logos-blockchain)) and paste your node's public key — found in `/data/user_config.yaml` on the volume, or printed during `init` in the deploy logs.
+Visit the Logos faucet (link in the [official docs](https://github.com/logos-blockchain/logos-blockchain)) and paste your node's public key — visible in the **Wallet Keys** card on the dashboard, or in `/data/user_config.yaml` on the volume.
 
 ---
 
@@ -77,7 +94,9 @@ Visit the Logos faucet (link in the [official docs](https://github.com/logos-blo
 ```
 .
 ├── Dockerfile       # Multi-stage build — downloads binary + circuits from GitHub Releases
-├── entrypoint.sh    # Handles first-run init and graceful shutdown
+├── entrypoint.sh    # Handles first-run init, log capture, graceful shutdown
+├── dashboard.py     # Python stdlib HTTP server (status, logs, keys, optional auth)
+├── dashboard.html   # Dark-themed single-page dashboard with auto-refresh
 ├── railway.toml     # Railway config: volume, health check, env var defaults
 └── README.md        # This file
 ```
