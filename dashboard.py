@@ -20,6 +20,7 @@ DATA_DIR    = os.environ.get("DATA_DIR", "/data")
 LOG_FILE    = os.path.join(DATA_DIR, "node.log")
 CONFIG_FILE = os.path.join(DATA_DIR, "user_config.yaml")
 DASHBOARD_HTML = Path(__file__).with_name("dashboard.html")
+ASSETS_DIR = Path(__file__).with_name("assets")
 
 
 def node_get(path):
@@ -114,6 +115,21 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _send_asset(self, filename):
+        asset_path = ASSETS_DIR / filename
+        try:
+            content = asset_path.read_bytes()
+        except FileNotFoundError:
+            self.send_error(404)
+            return
+        ext = asset_path.suffix.lower()
+        content_type = "image/png" if ext == ".png" else "application/octet-stream"
+        self.send_response(200)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(content)))
+        self.end_headers()
+        self.wfile.write(content)
+
     def _send_html(self):
         try:
             content = DASHBOARD_HTML.read_bytes()
@@ -132,6 +148,11 @@ class DashboardHandler(BaseHTTPRequestHandler):
         # Health endpoint — no auth required (used by Railway healthcheck)
         if path == "/health":
             self._send_json({"status": "ok"})
+            return
+
+        # Static assets — no auth required
+        if path.startswith("/assets/"):
+            self._send_asset(path[len("/assets/"):])
             return
 
         if not check_auth(self):
