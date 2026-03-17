@@ -18,11 +18,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /download
 
 # Download node binary tarball
+# Asset naming: logos-blockchain-node-linux-x86_64-v{version}.tar.gz
+# If naming differs, adjust the URL (some releases may omit the `v` prefix).
 RUN curl -fsSL \
     "https://github.com/logos-blockchain/logos-blockchain/releases/download/v${NODE_VERSION}/logos-blockchain-node-linux-x86_64-v${NODE_VERSION}.tar.gz" \
     -o node.tar.gz \
     && tar -xzf node.tar.gz \
-    && chmod +x logos-blockchain-node
+    && find . -name 'logos-blockchain-node' -type f -exec mv {} /download/logos-blockchain-node \; \
+    && chmod +x /download/logos-blockchain-node
 
 # Download ZK circuits tarball
 RUN curl -fsSL \

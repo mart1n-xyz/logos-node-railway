@@ -24,11 +24,6 @@ value       = "8080"
 description = "Port the node's HTTP API listens on"
 
 [[deploy.envVars]]
-name        = "P2P_PORT"
-value       = "3000"
-description = "UDP port for libp2p/QUIC p2p networking"
-
-[[deploy.envVars]]
 name        = "DATA_DIR"
 value       = "/data"
 description = "Path to the persistent volume (config + chain state)"
