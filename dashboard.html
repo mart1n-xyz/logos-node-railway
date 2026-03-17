@@ -68,12 +68,20 @@
       font-weight: 600;
     }
 
+    /* Single-column layout — stacks everything vertically */
     main {
-      max-width: 1200px;
+      max-width: 800px;
       margin: 0 auto;
       padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Top stats row — side by side on desktop, stacked on mobile */
+    .stats-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: 1fr 1fr;
       gap: 16px;
     }
 
@@ -107,6 +115,7 @@
     .dot.yellow { background: var(--yellow); }
     .dot.red    { background: var(--red); }
 
+    /* Key-value rows */
     .kv-table { width: 100%; border-collapse: collapse; }
     .kv-table tr { border-bottom: 1px solid var(--border); }
     .kv-table tr:last-child { border-bottom: none; }
@@ -114,7 +123,7 @@
     .kv-table td:first-child {
       color: var(--muted);
       font-size: 12px;
-      width: 40%;
+      width: 120px;
       padding-right: 8px;
       white-space: nowrap;
     }
@@ -122,6 +131,7 @@
       font-family: var(--mono);
       font-size: 12px;
       word-break: break-all;
+      overflow-wrap: anywhere;
     }
 
     .value-highlight { color: var(--accent); font-weight: 600; }
@@ -129,11 +139,35 @@
     .value-warn   { color: var(--yellow); }
     .value-err    { color: var(--red); }
 
-    /* Log section — full width */
-    .log-section {
-      grid-column: 1 / -1;
+    /* Wallet keys — monospace block instead of table */
+    .key-block {
+      font-family: var(--mono);
+      font-size: 12px;
+      background: #010409;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+      line-height: 1.6;
+    }
+    .key-block .key-label {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: block;
+      margin-bottom: 2px;
+    }
+    .key-block .key-label:not(:first-child) {
+      margin-top: 10px;
+    }
+    .key-block .key-value {
+      color: var(--accent);
+      display: block;
     }
 
+    /* Log section */
     .log-header {
       display: flex;
       align-items: center;
@@ -159,6 +193,7 @@
       color: #7ee787;
       white-space: pre-wrap;
       word-break: break-all;
+      overflow-wrap: anywhere;
     }
 
     #log-box::-webkit-scrollbar { width: 6px; }
@@ -183,7 +218,9 @@
     @media (max-width: 600px) {
       header { padding: 10px 16px; }
       main   { padding: 12px 8px; gap: 12px; }
+      .stats-row { grid-template-columns: 1fr; }
       #log-box { height: 300px; }
+      .kv-table td:first-child { width: 90px; }
     }
   </style>
 </head>
@@ -194,47 +231,48 @@
   </header>
 
   <main>
-    <!-- Node Status Card -->
-    <div class="card" id="card-node">
-      <div class="card-title">
-        <span class="dot" id="node-dot"></span>
-        Node Status
+    <!-- Node Status + Peers — side by side -->
+    <div class="stats-row">
+      <div class="card" id="card-node">
+        <div class="card-title">
+          <span class="dot" id="node-dot"></span>
+          Node Status
+        </div>
+        <div id="node-error" class="error-banner"></div>
+        <table class="kv-table" id="node-table">
+          <tr><td>mode</td><td>—</td></tr>
+          <tr><td>slot</td><td>—</td></tr>
+          <tr><td>height</td><td>—</td></tr>
+          <tr><td>tip</td><td>—</td></tr>
+        </table>
       </div>
-      <div id="node-error" class="error-banner"></div>
-      <table class="kv-table" id="node-table">
-        <tr><td>mode</td><td>—</td></tr>
-        <tr><td>slot</td><td>—</td></tr>
-        <tr><td>height</td><td>—</td></tr>
-        <tr><td>tip</td><td>—</td></tr>
-      </table>
+
+      <div class="card" id="card-peers">
+        <div class="card-title">
+          <span class="dot" id="peers-dot"></span>
+          Network / Peers
+        </div>
+        <div id="peers-error" class="error-banner"></div>
+        <table class="kv-table" id="peers-table">
+          <tr><td>peer count</td><td>—</td></tr>
+          <tr><td>connections</td><td>—</td></tr>
+        </table>
+      </div>
     </div>
 
-    <!-- Peer Info Card -->
-    <div class="card" id="card-peers">
-      <div class="card-title">
-        <span class="dot" id="peers-dot"></span>
-        Network / Peers
-      </div>
-      <div id="peers-error" class="error-banner"></div>
-      <table class="kv-table" id="peers-table">
-        <tr><td>peer count</td><td>—</td></tr>
-        <tr><td>connections</td><td>—</td></tr>
-      </table>
-    </div>
-
-    <!-- Wallet Keys Card -->
+    <!-- Wallet Keys — full width -->
     <div class="card" id="card-keys">
       <div class="card-title">
         <span class="dot"></span>
         Wallet Keys
       </div>
-      <table class="kv-table" id="keys-table">
-        <tr><td colspan="2" style="color:var(--muted);font-size:12px">Loading…</td></tr>
-      </table>
+      <div class="key-block" id="keys-block">
+        <span style="color:var(--muted);font-size:12px">Loading…</span>
+      </div>
     </div>
 
-    <!-- Logs -->
-    <div class="card log-section">
+    <!-- Logs — full width -->
+    <div class="card">
       <div class="log-header">
         <div class="card-title" style="margin-bottom:0">
           <span class="dot"></span>
@@ -247,7 +285,6 @@
   </main>
 
   <script>
-    // ── helpers ──────────────────────────────────────────────────────────────────
     function setText(el, text, cls) {
       el.textContent = text;
       if (cls) el.className = cls;
@@ -284,7 +321,6 @@
       if (dot) { dot.className = 'dot ' + (okClass || 'green'); }
     }
 
-    // ── fetch & render ────────────────────────────────────────────────────────────
     async function fetchJSON(url) {
       const resp = await fetch(url);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -295,7 +331,6 @@
       try {
         const data = await fetchJSON('/api/status');
 
-        // ── Cryptarchia ───────────────────────────────────────────────────────────
         if (data.cryptarchia) {
           clearError('node-error', 'node-dot', 'green');
           const c = data.cryptarchia;
@@ -311,7 +346,6 @@
           replaceTable('node-table', [['mode','—'],['slot','—'],['height','—'],['tip','—']]);
         }
 
-        // ── Network ───────────────────────────────────────────────────────────────
         if (data.network) {
           clearError('peers-error', 'peers-dot', 'green');
           const n = data.network;
@@ -337,14 +371,26 @@
     async function updateKeys() {
       try {
         const data = await fetchJSON('/api/keys');
-        const rows = Object.entries(data).map(([k, v]) => [k, v]);
-        if (rows.length === 0) {
-          replaceTable('keys-table', [['note', 'No keys found', 'value-warn']]);
-        } else {
-          replaceTable('keys-table', rows);
+        const block = document.getElementById('keys-block');
+        const entries = Object.entries(data);
+        if (entries.length === 0) {
+          block.innerHTML = '<span style="color:var(--yellow);font-size:12px">No keys found</span>';
+          return;
         }
+        block.innerHTML = '';
+        entries.forEach(([k, v]) => {
+          const label = document.createElement('span');
+          label.className = 'key-label';
+          label.textContent = k;
+          const value = document.createElement('span');
+          value.className = 'key-value';
+          value.textContent = v;
+          block.appendChild(label);
+          block.appendChild(value);
+        });
       } catch (err) {
-        replaceTable('keys-table', [['error', String(err), 'value-err']]);
+        document.getElementById('keys-block').innerHTML =
+          `<span style="color:var(--red);font-size:12px">${err}</span>`;
       }
     }
 
@@ -372,7 +418,6 @@
       } catch (_) {}
     }
 
-    // ── countdown & auto-refresh ─────────────────────────────────────────────────
     let countdown = 10;
 
     function tick() {
@@ -388,11 +433,9 @@
     function refresh() {
       updateStatus();
       updateLogs();
-      // Keys are less dynamic — refresh once a minute
       if (countdown === 10) updateKeys();
     }
 
-    // Initial load
     refresh();
     setInterval(tick, 1000);
   </script>
