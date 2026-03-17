@@ -1,0 +1,42 @@
+[build]
+# Bump NODE_VERSION and CIRCUITS_VERSION here when new releases are published.
+# If circuit files are released on a different tag, set CIRCUITS_VERSION separately.
+dockerfilePath = "Dockerfile"
+
+[build.args]
+NODE_VERSION     = "0.2.1"
+CIRCUITS_VERSION = "0.2.1"
+
+[deploy]
+# Health check hits the Cryptarchia info endpoint
+healthcheckPath    = "/cryptarchia/info"
+healthcheckTimeout = 300          # generous — node needs time to sync on first boot
+restartPolicyType  = "on_failure"
+
+[[deploy.envVars]]
+name        = "PORT"
+value       = "8080"
+description = "HTTP API port (Railway injects $PORT; keep in sync with API_PORT)"
+
+[[deploy.envVars]]
+name        = "API_PORT"
+value       = "8080"
+description = "Port the node's HTTP API listens on"
+
+[[deploy.envVars]]
+name        = "P2P_PORT"
+value       = "3000"
+description = "UDP port for libp2p/QUIC p2p networking"
+
+[[deploy.envVars]]
+name        = "DATA_DIR"
+value       = "/data"
+description = "Path to the persistent volume (config + chain state)"
+
+[[deploy.envVars]]
+name  = "BOOTSTRAP_PEERS"
+value = "/ip4/65.109.51.37/udp/3000/quic-v1/p2p/12D3KooWL7a8LBbLRYnabptHPFBCmAs49Y7cVMqvzuSdd43tAJk8 /ip4/65.109.51.37/udp/3001/quic-v1/p2p/12D3KooWPLeAcachoUm68NXGD7tmNziZkVeMmeBS5NofyukuMRJh /ip4/65.109.51.37/udp/3002/quic-v1/p2p/12D3KooWKFNe4gS5DcCcRUVGdMjZp3fUWu6q6gG5R846Ui1pccHD /ip4/65.109.51.37/udp/3003/quic-v1/p2p/12D3KooWAnriLgXyQnGTYz1zPWPkQL3rthTKYLzuAP7MMnbgsxzR"
+description = "Space-separated bootstrap peer multiaddrs — update for each new release"
+
+[[volumes]]
+mountPath = "/data"
