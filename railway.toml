@@ -9,7 +9,7 @@ CIRCUITS_VERSION = "0.4.1"
 
 [deploy]
 # Health check hits the dashboard (which is the public-facing port)
-healthcheckPath    = "/"
+healthcheckPath    = "/health"
 healthcheckTimeout = 300          # generous — node needs time to sync on first boot
 restartPolicyType  = "on_failure"
 

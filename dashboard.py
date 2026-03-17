@@ -127,11 +127,16 @@ class DashboardHandler(BaseHTTPRequestHandler):
         self.wfile.write(content)
 
     def do_GET(self):
+        path = self.path.split("?")[0]  # strip query string
+
+        # Health endpoint — no auth required (used by Railway healthcheck)
+        if path == "/health":
+            self._send_json({"status": "ok"})
+            return
+
         if not check_auth(self):
             self._send_auth_challenge()
             return
-
-        path = self.path.split("?")[0]  # strip query string
 
         if path in ("/", "/index.html"):
             self._send_html()
