@@ -29,7 +29,7 @@ RUN curl -fsSL \
 
 # Download ZK circuits tarball
 RUN curl -fsSL \
-    "https://github.com/logos-co/nomos-node/releases/download/${CIRCUITS_VERSION}/logos-blockchain-circuits-v${CIRCUITS_VERSION}-linux-x86_64.tar.gz" \
+    "https://github.com/logos-co/nomos-node/releases/download/${NODE_VERSION}/logos-blockchain-circuits-v${CIRCUITS_VERSION}-linux-x86_64.tar.gz" \
     -o circuits.tar.gz \
     && tar -xzf circuits.tar.gz
 
