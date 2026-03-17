@@ -2,7 +2,7 @@
 # Update NODE_VERSION and CIRCUITS_VERSION when new releases are published.
 
 ARG NODE_VERSION=0.2.1
-ARG CIRCUITS_VERSION=0.2.1
+ARG CIRCUITS_VERSION=0.4.1
 
 # ── Download stage ────────────────────────────────────────────────────────────
 FROM ubuntu:24.04 AS downloader
