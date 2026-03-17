@@ -65,6 +65,7 @@ WORKDIR /data
 COPY entrypoint.sh  /usr/local/bin/entrypoint.sh
 COPY dashboard.py   /usr/local/bin/dashboard.py
 COPY dashboard.html /usr/local/bin/dashboard.html
+COPY assets/        /usr/local/bin/assets/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # p2p (UDP/QUIC), node HTTP API (internal), and web dashboard
