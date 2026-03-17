@@ -8,25 +8,35 @@ NODE_VERSION     = "0.2.1"
 CIRCUITS_VERSION = "0.2.1"
 
 [deploy]
-# Health check hits the Cryptarchia info endpoint
-healthcheckPath    = "/cryptarchia/info"
+# Health check hits the dashboard (which is the public-facing port)
+healthcheckPath    = "/"
 healthcheckTimeout = 300          # generous — node needs time to sync on first boot
 restartPolicyType  = "on_failure"
 
 [[deploy.envVars]]
 name        = "PORT"
+value       = "3001"
+description = "Web dashboard port (Railway injects $PORT and routes public traffic here)"
+
+[[deploy.envVars]]
+name        = "NODE_API_PORT"
 value       = "8080"
-description = "HTTP API port (Railway injects $PORT; keep in sync with API_PORT)"
+description = "Internal port for the node's HTTP API (not publicly exposed)"
 
 [[deploy.envVars]]
 name        = "API_PORT"
 value       = "8080"
-description = "Port the node's HTTP API listens on"
+description = "Port the node's HTTP API listens on (keep in sync with NODE_API_PORT)"
 
 [[deploy.envVars]]
 name        = "DATA_DIR"
 value       = "/data"
 description = "Path to the persistent volume (config + chain state)"
+
+[[deploy.envVars]]
+name        = "DASHBOARD_PASSWORD"
+value       = ""
+description = "Optional: set to enable basic auth on the dashboard (username: admin). Leave empty for public access."
 
 [[deploy.envVars]]
 name  = "BOOTSTRAP_PEERS"
