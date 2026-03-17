@@ -1,0 +1,89 @@
+# Logos Blockchain Node — Railway Template
+
+Run a [Logos Blockchain](https://github.com/logos-blockchain/logos-blockchain) devnet node on [Railway](https://railway.app) in one click.
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/logos-node?referralCode=logos-node-railway)
+
+> **One-click deploy** → Railway pulls this repo, builds the Docker image (downloading the node binary + ZK circuits from GitHub Releases), provisions a persistent volume, and starts the node.
+
+---
+
+## What this is
+
+This template runs a single **Logos Blockchain** full node on Railway. It:
+
+- Downloads the official `logos-blockchain-node` binary and ZK circuit files from GitHub Releases at image build time.
+- Runs `logos-blockchain-node init` on first boot to generate fresh keys and a `user_config.yaml`.
+- Stores config and all chain state on a Railway persistent volume (`/data`) so data survives redeploys.
+- Exposes the HTTP API on port 8080 and p2p (UDP/QUIC) on port 3000.
+- Uses the Railway health check (`GET /cryptarchia/info`) to confirm the node is running.
+
+---
+
+## Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `API_PORT` | `8080` | Port for the node's HTTP API |
+| `P2P_PORT` | `3000` | UDP port for libp2p/QUIC p2p networking |
+| `DATA_DIR` | `/data` | Persistent volume mount path |
+| `BOOTSTRAP_PEERS` | *(v0.2.1 peers — see below)* | Space-separated multiaddrs to join the network |
+
+### Default bootstrap peers (v0.2.1)
+
+```
+/ip4/65.109.51.37/udp/3000/quic-v1/p2p/12D3KooWL7a8LBbLRYnabptHPFBCmAs49Y7cVMqvzuSdd43tAJk8
+/ip4/65.109.51.37/udp/3001/quic-v1/p2p/12D3KooWPLeAcachoUm68NXGD7tmNziZkVeMmeBS5NofyukuMRJh
+/ip4/65.109.51.37/udp/3002/quic-v1/p2p/12D3KooWKFNe4gS5DcCcRUVGdMjZp3fUWu6q6gG5R846Ui1pccHD
+/ip4/65.109.51.37/udp/3003/quic-v1/p2p/12D3KooWAnriLgXyQnGTYz1zPWPkQL3rthTKYLzuAP7MMnbgsxzR
+```
+
+---
+
+## Checking node status
+
+Once deployed, use the Railway public domain (or your custom domain) to query the HTTP API:
+
+```bash
+# Node info / sync status
+curl https://<your-railway-domain>/cryptarchia/info
+
+# Peer count
+curl https://<your-railway-domain>/network/info
+```
+
+You can also check the node logs directly in the Railway dashboard under **Deployments → Logs**.
+
+---
+
+## Getting devnet tokens
+
+Visit the Logos faucet (link in the [official docs](https://github.com/logos-blockchain/logos-blockchain)) and paste your node's public key — found in `/data/user_config.yaml` on the volume, or printed during `init` in the deploy logs.
+
+---
+
+## Updating to a new release
+
+1. In your Railway project, go to **Settings → Variables** and update `BOOTSTRAP_PEERS` to the peers listed in the new release notes.
+2. Open `railway.toml` in this repo, update `NODE_VERSION` (and `CIRCUITS_VERSION` if the circuits were re-released), then push to your fork.
+3. Railway will automatically rebuild the image and redeploy. Chain state on `/data` is preserved.
+
+> **Tip**: If `CIRCUITS_VERSION` differs from `NODE_VERSION` in a release, set them independently in `railway.toml` under `[build.args]`.
+
+---
+
+## Repository structure
+
+```
+.
+├── Dockerfile       # Multi-stage build — downloads binary + circuits from GitHub Releases
+├── entrypoint.sh    # Handles first-run init and graceful shutdown
+├── railway.toml     # Railway config: volume, health check, env var defaults
+└── README.md        # This file
+```
+
+---
+
+## License
+
+MIT
