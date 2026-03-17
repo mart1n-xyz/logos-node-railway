@@ -39,9 +39,11 @@ FROM ubuntu:24.04
 ARG CIRCUITS_VERSION
 
 # Install runtime dependencies (glibc 2.39 is provided by ubuntu:24.04)
+# python3 is used by the web dashboard (stdlib only, no pip required)
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
+        python3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install the node binary
@@ -59,12 +61,15 @@ ENV LOGOS_BLOCKCHAIN_CIRCUITS=/opt/logos-blockchain/circuits
 VOLUME ["/data"]
 WORKDIR /data
 
-# Copy entrypoint
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+# Copy entrypoint and dashboard
+COPY entrypoint.sh  /usr/local/bin/entrypoint.sh
+COPY dashboard.py   /usr/local/bin/dashboard.py
+COPY dashboard.html /usr/local/bin/dashboard.html
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# p2p (UDP/QUIC) and HTTP API
+# p2p (UDP/QUIC), node HTTP API (internal), and web dashboard
 EXPOSE 3000/udp
 EXPOSE 8080/tcp
+EXPOSE 3001/tcp
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
