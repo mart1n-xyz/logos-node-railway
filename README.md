@@ -2,7 +2,7 @@
 
 Run a [Logos Blockchain](https://github.com/logos-blockchain/logos-blockchain) devnet node on [Railway](https://railway.app) in one click.
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/logos-node?referralCode=logos-node-railway)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/vhzp1z?referralCode=TSm7KN)
 
 > **One-click deploy** → Railway pulls this repo, builds the Docker image (downloading the node binary + ZK circuits from GitHub Releases), provisions a persistent volume, and starts the node.
 
