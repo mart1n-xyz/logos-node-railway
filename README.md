@@ -1,6 +1,6 @@
 # Logos Blockchain Node — Railway Template
 
-Run a [Logos Blockchain](https://github.com/logos-blockchain/logos-blockchain) devnet node on [Railway](https://railway.app) in one click.
+Run a [Logos Blockchain](https://github.com/logos-co/nomos-node) devnet node on [Railway](https://railway.app) in one click.
 
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/vhzp1z?referralCode=TSm7KN)
 
@@ -75,7 +75,7 @@ If `DASHBOARD_PASSWORD` is empty (the default), the dashboard is publicly access
 
 ## Getting devnet tokens
 
-Visit the Logos faucet (link in the [official docs](https://github.com/logos-blockchain/logos-blockchain)) and paste your node's public key — visible in the **Wallet Keys** card on the dashboard, or in `/data/user_config.yaml` on the volume.
+Visit the Logos faucet (link in the [official docs](https://github.com/logos-co/nomos-node)) and paste your node's public key — visible in the **Wallet Keys** card on the dashboard, or in `/data/user_config.yaml` on the volume.
 
 ---
 

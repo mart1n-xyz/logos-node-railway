@@ -21,7 +21,7 @@ WORKDIR /download
 # Asset naming: logos-blockchain-node-linux-x86_64-v{version}.tar.gz
 # If naming differs, adjust the URL (some releases may omit the `v` prefix).
 RUN curl -fsSL \
-    "https://github.com/logos-blockchain/logos-blockchain/releases/download/v${NODE_VERSION}/logos-blockchain-node-linux-x86_64-v${NODE_VERSION}.tar.gz" \
+    "https://github.com/logos-co/nomos-node/releases/download/${NODE_VERSION}/logos-blockchain-node-linux-x86_64-${NODE_VERSION}.tar.gz" \
     -o node.tar.gz \
     && tar -xzf node.tar.gz \
     && find . -name 'logos-blockchain-node' -type f -exec mv {} /download/logos-blockchain-node \; \
@@ -29,7 +29,7 @@ RUN curl -fsSL \
 
 # Download ZK circuits tarball
 RUN curl -fsSL \
-    "https://github.com/logos-blockchain/logos-blockchain/releases/download/v${CIRCUITS_VERSION}/logos-blockchain-circuits-v${CIRCUITS_VERSION}-linux-x86_64.tar.gz" \
+    "https://github.com/logos-co/nomos-node/releases/download/${CIRCUITS_VERSION}/logos-blockchain-circuits-v${CIRCUITS_VERSION}-linux-x86_64.tar.gz" \
     -o circuits.tar.gz \
     && tar -xzf circuits.tar.gz
 
