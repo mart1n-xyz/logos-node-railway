@@ -58,7 +58,7 @@ COPY --from=downloader /download/logos-blockchain-circuits-v${CIRCUITS_VERSION}-
 ENV LOGOS_BLOCKCHAIN_CIRCUITS=/opt/logos-blockchain/circuits
 
 # Persistent data directory (mounted as a Railway volume)
-VOLUME ["/data"]
+# Volume mount handled by Railway — do not use VOLUME directive
 WORKDIR /data
 
 # Copy entrypoint and dashboard
